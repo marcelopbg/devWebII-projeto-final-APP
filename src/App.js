@@ -4,8 +4,7 @@ import './App.css';
 import { logout as logoutFunction, getCurrentUser } from "./services/auth.service";
 import Register from './components/Authentication/register'
 import Login from './components/Authentication/login'
-import CorretorTest from './components/CorretorTest'
-// import Profile from './components/profile'
+import HousesList from './components/HousesList'
 
 function App(props) {
 
@@ -40,7 +39,7 @@ const logout = () => {
           {(showUserBoard || showAdminBoard) && (
 
             <li className="nav-item">
-              <Link to={"/user"} className="nav-link">
+              <Link to={"/houses"} className="nav-link">
                 Tela do Corretor
             </Link>
             </li>
@@ -56,11 +55,6 @@ const logout = () => {
           )}
           {currentUser ? (
             <React.Fragment>
-              {/* <li className="nav-item">
-                <Link to={"/profile"} className="nav-link">
-                  {currentUser.username}
-                </Link>
-              </li> */}
               <li className="nav-item">
                 <a href="/login" className="nav-link" onClick={logout}>
                   Deslogar
@@ -87,14 +81,14 @@ const logout = () => {
             render={() => {
               return (
                 currentUser ?
-                  <Redirect to="/user" /> :
+                  <Redirect to="/houses" /> :
                   <Redirect to="/login" />
               )
             }}
           />
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
-          <Route path="/user" component={CorretorTest} />
+          <Route path="/houses" component={HousesList} />
         </Switch>
       </div>
     </div>

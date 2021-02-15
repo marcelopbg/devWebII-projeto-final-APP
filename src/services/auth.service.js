@@ -1,7 +1,7 @@
 import axios from "axios";
 import authHeader from './auth.header';
-
-const API_URL = "http://localhost:8080/api/auth/";
+import backendURL from './backend.url';
+const API_URL = backendURL+"/api/auth/";
 
 
 const login = (username, password) => {
