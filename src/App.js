@@ -5,8 +5,9 @@ import { logout as logoutFunction, getCurrentUser } from "./services/auth.servic
 import Register from './components/Authentication/register'
 import Login from './components/Authentication/login'
 import HousesList from './components/HousesList'
+import CreateHouse from './components/CreateHouse'
 
-function App(props) {
+function App() {
 
   
 const logout = () => {
@@ -33,16 +34,22 @@ const logout = () => {
     <div>
       <nav className="navbar navbar-expand navbar-dark bg-dark">
         <Link to={"/"} className="navbar-brand">
-          Gerenciador de Aluguéis
+          Gerenciador de Alugueis
       </Link>
         <div className="navbar-nav mr-auto">
           {(showUserBoard || showAdminBoard) && (
-
+            <React.Fragment>
             <li className="nav-item">
               <Link to={"/houses"} className="nav-link">
-                Tela do Corretor
+                Lista de Imóveis
             </Link>
             </li>
+            <li className="nav-item">
+              <Link to={"/createHouse"} className="nav-link">
+                Cadastrar Imóvel
+            </Link>
+            </li>
+            </React.Fragment>
           )}
         </div>
         <div className="navbar-nav ml-auto">
@@ -73,22 +80,17 @@ const logout = () => {
 
       </nav>
 
-      <div className="container mt-3">
+      <div className="mt-3">
         <Switch>
           <Route
             exact
             path="/"
-            render={() => {
-              return (
-                currentUser ?
-                  <Redirect to="/houses" /> :
-                  <Redirect to="/login" />
-              )
-            }}
+            render={() => (currentUser) ? <Redirect to="/houses"/> : <Redirect to="/login"/> }
           />
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
           <Route path="/houses" component={HousesList} />
+          <Route path="/createHouse" component={CreateHouse} />
         </Switch>
       </div>
     </div>
