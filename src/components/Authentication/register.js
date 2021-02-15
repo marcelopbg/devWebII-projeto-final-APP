@@ -109,7 +109,7 @@ function Register() {
         {!successful && (
           <div>
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">Nome de usuário</label>
               <Input
                 type="text"
                 className="form-control"
@@ -133,7 +133,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">Senha</label>
               <Input
                 type="password"
                 className="form-control"
@@ -145,7 +145,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <button className="btn btn-primary btn-block">Sign Up</button>
+              <button className="btn btn-primary btn-block"> Cadastrar </button>
             </div>
           </div>
         )}

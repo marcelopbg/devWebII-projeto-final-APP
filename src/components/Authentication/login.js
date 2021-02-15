@@ -42,9 +42,9 @@ function Login(props) {
     
         if (checkBtn.current.context._errors.length === 0) {
             loginFunction(username, password).then(
-                (response) => {
-                    // props.history.push("/profile");
-                    // window.location.reload();
+                () => {
+                    props.history.push("/user");
+                    window.location.reload();
                 },
                 error => {
                     const resMessage =
@@ -78,7 +78,7 @@ function Login(props) {
                     ref={form}
                 >
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="username"> Nome de usuário </label>
                         <Input
                             type="text"
                             className="form-control"
@@ -90,7 +90,7 @@ function Login(props) {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Senha </label>
                         <Input
                             type="password"
                             className="form-control"
