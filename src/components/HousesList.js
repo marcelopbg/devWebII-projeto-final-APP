@@ -2,29 +2,87 @@ import React, { useEffect, useState } from 'react';
 import authHeader from '../services/auth.header';
 import backendURL from '../services/backend.url';
 import axios from 'axios';
+import HousesListFilter from './HousesListFilter'
 
 const dateFormat = (input) => {
     const date = new Date(input);
-    return `${date.getDay()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
+
 function HousesList() {
     const [content, setContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isEmpty, setIsempty] = useState(false);
+    const [isEmpty, setIsEmpty] = useState(false);
+
+    const [stateFilter, setStateFilter] = useState(null);
+    const [cityFilter, setCityFilter] = useState(null);
+    const [districtFilter, setDistrictFilter] = useState(null);
+    const [priceFromFilter, setPriceFromFilter] = useState(null);
+    const [priceToFilter, setPriceToFilter] = useState(null);
+    const [bathroomQuantityFilter, setBathroomQuantityFilter] = useState(null);
+    const [roomQuantityFilter, setRoomQuantityFilter] = useState(null);
+    const [balconyQuantityFilter, setBalconyQuantityFilter] = useState(null);
+    const [carSpotQuantityFilter, setCarSpotQuantityFilter] = useState(null);
+    const [dateFromFilter, setDateFromFilter] = useState(null);
+    const [dateToFilter, setdateToFilter] = useState(null);
+
+    const moneyFormat = (doubleInput) => {
+        return new Number(doubleInput).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    }
+    const handleSearch = () => {
+        setIsLoading(true);
+        let params = {}
+        if (cityFilter) {
+            params.city = cityFilter;
+        }
+        if (stateFilter) {
+            params.state = stateFilter
+        }
+        if(districtFilter) {
+            params.district = districtFilter;
+        }
+        if(priceFromFilter && priceToFilter) {
+            params.price =  ['between', priceFromFilter, priceToFilter]
+        }
+        if(bathroomQuantityFilter) {
+            params.bathroomQuantity = bathroomQuantityFilter;
+        }
+        if(roomQuantityFilter) {
+            params.roomQuantity = roomQuantityFilter;
+        }
+        if(balconyQuantityFilter) {
+            params.balconyQuantity = balconyQuantityFilter;
+        }
+        if(carSpotQuantityFilter) {
+            params.carSpotQuantity = carSpotQuantityFilter;
+        }
+        if(dateFromFilter && dateToFilter) {
+            params.date =  ['dateRangeBetween', dateFromFilter, dateToFilter]
+        }
+        axios(backendURL + "/api/house", { params: params, headers: authHeader() }).then(response => {
+            setIsEmpty(false);
+            setContent(response.data);
+            setIsLoading(false);
+            if (response.data.length == 0) {
+                setIsEmpty(true);
+            }
+        })
+        setIsLoading(false);
+    }
 
     useEffect(() => {
         axios(backendURL + "/api/house", { headers: authHeader() }).then(response => {
+            setIsEmpty(false);
             setContent(response.data);
             setIsLoading(false);
-            if (!response.data) {
-                setIsempty(true);
+            if (response.data.length == 0) {
+                setIsEmpty(true);
             }
         })
     }, []);
 
     return (
         <div>
-
             <div className="d-flex m-2">
                 <h4> Listagem de Imóveis </h4>
                 <div className="ml-auto">
@@ -34,73 +92,34 @@ function HousesList() {
                     </button>
                 </div>
             </div>
-            <div className="modal" id="myModal">
-                <div className="modal-dialog modal-lg">
-                    <div className="modal-content">
 
-                        <div className="modal-header">
-                            <h4 className="modal-title"> Filtrar imóveis </h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
+            <HousesListFilter
+                stateFilterSetter={setStateFilter}
+                cityFilterSetter={setCityFilter}
+                districtFilterSetter={setDistrictFilter}
+                priceFromFilterSetter={setPriceFromFilter}
+                priceToFilterSetter={setPriceToFilter}
+                bathroomQuantityFilterSetter={setBathroomQuantityFilter}
+                roomQuantityFilterSetter={setRoomQuantityFilter}
+                balconyQuantityFilterSetter={setBalconyQuantityFilter}
+                carSpotQuantityFilterSetter={setCarSpotQuantityFilter}
+                dateToFilterSetter={setdateToFilter}
+                dateFromFilterSetter={setDateFromFilter}
+                searchAction={handleSearch}
+            />
+            {isLoading && (
+                <React.Fragment>
+                    <h1 className="text-center"> Carregando... </h1>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
 
-                        <div className="modal-body ml-4 mr-4">
-                            <form>
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Estado: </b> </label>
-                                <input type="text" className="form-control form-control-sm" id="colFormLabelSm" />
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Cidade: </b> </label>
-                                <input type="text" className="form-control form-control-sm" id="colFormLabelSm" />
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Bairro: </b> </label>
-                                <input type="text" className="form-control form-control-sm" id="colFormLabelSm" />
-                                <div className="row">
-                                <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Preço de:</b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                    <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Até: </b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                </div>
-                                <div className="row">
-                                <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Qtd de Quartos:</b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                    <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Qtd de Banheiros: </b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                    <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Qtd de Sacadas: </b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                    <div className="col-sm-3">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Qtd de Vagas: </b> </label>
-                                        <input type="number" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                </div>
-                                <div className="row">
-                                <div className="col-sm-5">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Date de:</b> </label>
-                                        <input type="date" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                    <div className="col-sm-5">
-                                <label htmlFor="colFormLabelSm" className="ol-form-label col-form-label-sm"> <b> Até: </b> </label>
-                                        <input type="date" className="form-control form-control-sm" id="colFormLabelSm" />
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div className="modal-footer">
-                            {/* <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button> */}
-                            <button type="button" className="btn btn-success" data-dismiss="modal"> Pesquisar </button>
-                        </div>
+                        <div className="loader"></div>
                     </div>
-                </div>
-            </div>
-
-            {content && (
+                </React.Fragment>
+            )}
+            {isEmpty && (
+                <h1 className="text-center"> Nenhum resultado encontrado </h1>
+            )}
+            {!isLoading && content.length > 0 && (
                 <div className="table-responsive-xl">
                     <table className="table">
                         <thead>
@@ -130,7 +149,7 @@ function HousesList() {
                                         <td>{values.city} </td>
                                         <td>{values.district} </td>
                                         <td>{values.address} </td>
-                                        <td>{values.price} </td>
+                                        <td>{moneyFormat(values.price)} </td>
                                         <td>{values.owner} </td>
                                         <td>{values.roomQuantity} </td>
                                         <td>{values.bathroomQuantity} </td>
