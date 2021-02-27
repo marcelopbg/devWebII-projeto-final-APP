@@ -6,6 +6,7 @@ import Register from './components/Authentication/register'
 import Login from './components/Authentication/login'
 import HousesList from './components/HousesList'
 import CreateHouse from './components/CreateHouse'
+import CreateRent from './components/CreateRent'
 
 function App() {
 
@@ -47,6 +48,11 @@ const logout = () => {
             <li className="nav-item">
               <Link to={"/createHouse"} className="nav-link">
                 Cadastrar Imóvel
+            </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/createRent"} className="nav-link">
+                Cadastrar Aluguel
             </Link>
             </li>
             </React.Fragment>
@@ -91,6 +97,7 @@ const logout = () => {
           <Route exact path="/register" component={Register} />
           <Route path="/houses" component={HousesList} />
           <Route path="/createHouse" component={CreateHouse} />
+          <Route path="/createRent" component={CreateRent} />
         </Switch>
       </div>
     </div>

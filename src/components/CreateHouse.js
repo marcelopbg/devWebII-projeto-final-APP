@@ -4,7 +4,7 @@ import authHeader from "../services/auth.header";
 import backendURL from "../services/backend.url";
 import axios from "axios";
 
-function CreateHouse() {
+function CreateHouse(props) {
   const [states, setStates] = useState(undefined);
   const [cities, setCities] = useState(undefined);
 
@@ -14,6 +14,7 @@ function CreateHouse() {
   const [address, setAddress] = useState(null);
   const [price, setPrice] = useState(null);
   const [owner, setOwner] = useState(null);
+  const [description, setDescription] = useState(null);
   const [bathroomQuantity, setBathroomQuantity] = useState(null);
   const [roomQuantity, setRoomQuantity] = useState(null);
   const [balconyQuantity, setBalconyQuantity] = useState(null);
@@ -45,36 +46,32 @@ function CreateHouse() {
     setCity(event.target.value);
   };
 
-  const formValues = () => {
-    return {
-      city,
-      state,
-      district,
-      address,
-      price,
-      owner,
-      bathroomQuantity,
-      roomQuantity,
-      balconyQuantity,
-      carSpotQuantity,
-      availableForRentStartDate,
-      availableForRentEndDate,
-    };
-  };
-
   const handleClick = (event) => {
     event.preventDefault();
-    console.log(formValues());
     axios(backendURL + "/api/house", {
       method: "post",
-      data: formValues(),
+      data: {
+        city,
+        state,
+        district,
+        address,
+        price,
+        owner,
+        description,
+        bathroomQuantity,
+        roomQuantity,
+        balconyQuantity,
+        carSpotQuantity,
+        availableForRentStartDate,
+        availableForRentEndDate,
+      },
       headers: authHeader(),
     }).then((response) => {
       if (response.data.length == 0) {
         // setError('algo de errado no envio do formulário')
         console.log("algo de errado no envio do formulário");
       } else {
-        console.log("ok!");
+        props.history.push("/")
       }
     });
   };
@@ -193,6 +190,23 @@ function CreateHouse() {
               className="form-control form-control-sm"
               id="colFormLabelSm"
               onChange={(event) => setOwner(event.target.value)}
+              required
+            />
+          </div>
+
+          <div className="col-sm-6">
+            <label
+              htmlFor="colFormLabelSm"
+              className="ol-form-label col-form-label-sm"
+            >
+              <b>Descrição do imóvel:</b>
+            </label>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              id="colFormLabelSm"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Digite a descrição do imóvel"
               required
             />
           </div>
