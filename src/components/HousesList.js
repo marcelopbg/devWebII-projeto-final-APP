@@ -3,17 +3,12 @@ import authHeader from '../services/auth.header';
 import backendURL from '../services/backend.url';
 import axios from 'axios';
 import HousesListFilter from './HousesListFilter'
+import { redirectIfUnauthenticated } from "../services/auth.service";
 
-const dateFormat = (input) => {
-    const date = input;
-    return `${date.getUTCDate()}/${date.getUTCMonth() + 1}/${date.getUTCFullYear()}`;
-}
-
-function HousesList() {
+function HousesList(props) {
     const [content, setContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEmpty, setIsEmpty] = useState(false);
-
     const [stateFilter, setStateFilter] = useState(null);
     const [cityFilter, setCityFilter] = useState(null);
     const [districtFilter, setDistrictFilter] = useState(null);
@@ -27,27 +22,20 @@ function HousesList() {
     const [dateToFilter, setdateToFilter] = useState(null);
 
 
-    const judgeAvailability = (houses) => {
+    const isHouseAvailable = (houses) => {
         let isAvailable = true;
-        const today = new Date(new Date().setUTCHours(0, 0, 0));
+        const today = new Date(new Date().toISOString().slice(0, 10));
         const availableForRentEndDate = new Date(houses.availableForRentEndDate)
-        const availableForRentStartDate = new Date(houses.availableForRentStartDate)
         if (houses.rents.length > 0) {
             const rentStartDate = new Date(houses.rents[houses.rents.length -1].rentStartDate);
-            if (rentStartDate >= today) {
+            if (rentStartDate <= today) {
                 isAvailable = false
             }
         }
         if (availableForRentEndDate <= today) {
             isAvailable = false;
         }
-
-        if (isAvailable) {
-            return `${dateFormat(availableForRentStartDate)} até ${dateFormat(availableForRentEndDate)}`
-        }
-        else {
-            return 'Não disponível'
-        }
+            return isAvailable; 
     }
 
     const moneyFormat = (doubleInput) => {
@@ -65,8 +53,8 @@ function HousesList() {
         if (districtFilter) {
             params.district = districtFilter;
         }
-        if (priceFromFilter && priceToFilter) {
-            params.price = ['between', priceFromFilter, priceToFilter]
+        if (priceFromFilter || priceToFilter) {
+            params.price = ['between', (priceFromFilter == '') ? 'null' : priceFromFilter, (priceToFilter == '') ? 'null' : priceToFilter]
         }
         if (bathroomQuantityFilter) {
             params.bathroomQuantity = bathroomQuantityFilter;
@@ -80,7 +68,7 @@ function HousesList() {
         if (carSpotQuantityFilter) {
             params.carSpotQuantity = carSpotQuantityFilter;
         }
-        if (dateFromFilter && dateToFilter) {
+        if (dateFromFilter || dateToFilter) {
             params.date = ['dateRangeBetween', dateFromFilter, dateToFilter]
         }
         axios(backendURL + "/api/house", { params: params, headers: authHeader() }).then(response => {
@@ -95,6 +83,7 @@ function HousesList() {
     }
 
     useEffect(() => {
+        redirectIfUnauthenticated(props);
         axios(backendURL + "/api/house", { headers: authHeader() }).then(response => {
             setIsEmpty(false);
             setContent(response.data);
@@ -182,8 +171,16 @@ function HousesList() {
                                         <td>{values.bathroomQuantity} </td>
                                         <td>{values.balconyQuantity} </td>
                                         <td>{values.carSpotQuantity} </td>
-                                        <td>{judgeAvailability(values)} </td>
-                                        <td><a href={`createRent/${values.id}`}> Cadastrar Aluguel </a> </td>
+                                        <td>
+                                            { isHouseAvailable(values) ?
+                                         `De ${new Date(values.availableForRentStartDate).toLocaleDateString('pt-BR')} até ${new Date(values.availableForRentEndDate).toLocaleDateString('pt-BR')}` 
+                                         : 'Não disponível' } </td>
+                                        <td>
+                                            { isHouseAvailable(values) ? 
+                                            <a href={`createRent/${values.id}`}> Cadastrar Aluguel </a> 
+                                            : 'Imóvel já está alugado' 
+                                            }
+                                            </td>
                                     </tr>
                                 );
                             })}

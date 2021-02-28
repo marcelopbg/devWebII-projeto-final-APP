@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import authHeader from "../services/auth.header";
 import backendURL from "../services/backend.url";
 import axios from "axios";
+import { redirectIfUnauthenticated } from "../services/auth.service";
 
 function CreateRent(props) {
 
@@ -15,6 +16,7 @@ function CreateRent(props) {
   const [rentEndDate, setRentEndDate] = useState(null);
 
   useEffect(() => {
+    redirectIfUnauthenticated(props);
     setHouseId(props.match.params.id);
     axios(backendURL + "/api/house", {
       method: "get",
@@ -24,9 +26,30 @@ function CreateRent(props) {
         if (response.data.length > 0) {
           const filteredHouse = response.data.filter(val => val.id == props.match.params.id);
           setHouse(filteredHouse[0]);
+          if(!isHouseAvailable(filteredHouse[0]))
+          {
+            alert('O imóvel não está disponível!')
+            props.history.push("/houses")
+          }
         }
       })
   }, []);
+
+  const isHouseAvailable = (houses) => {
+    let isAvailable = true;
+    const today = new Date(new Date().toISOString().slice(0, 10));
+    const availableForRentEndDate = new Date(houses.availableForRentEndDate)
+    if (houses.rents.length > 0) {
+        const rentStartDate = new Date(houses.rents[houses.rents.length -1].rentStartDate);
+        if (rentStartDate <= today) {
+            isAvailable = false
+        }
+    }
+    if (availableForRentEndDate <= today) {
+        isAvailable = false;
+    }
+        return isAvailable; 
+}
 
   const handleClick = (event) => {
     event.preventDefault();

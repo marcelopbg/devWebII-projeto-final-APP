@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-import { register } from '../../services/auth.service'
+import { register, redirectIfUnauthenticated } from '../../services/auth.service'
 
-function Register() {
+function Register(props) {
+
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +14,9 @@ function Register() {
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
 
+    useEffect(() => {
+      redirectIfUnauthenticated(props);
+    }, [])
   const form = useRef(null);
   const checkBtn = useRef(null);
 

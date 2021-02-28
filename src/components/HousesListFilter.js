@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { fetchStates } from '../services/location'
 
-// import { Container } from './styles';
-
-
 function HousesListFilter(props) {
 
 
     const [states, setStates] = useState(undefined);
     const [cities, setCities] = useState(undefined);
-
     useEffect(() => {
-        fetchStates().then(response => {
-            setStates(response.states);
-        })
-    }, [])
+        fetchStates().then((response) => {
+          setStates(response.states);
+        });
+      }, []);
 
     const handleStateChange = (event) => {
         const stateKey = Object.entries(states).filter(value => value[1] == event.target.value)[0][0];

@@ -86,7 +86,7 @@ const logout = () => {
           <Route
             exact
             path="/"
-            render={() => (currentUser) ? <Redirect to="/houses"/> : <Redirect to="/login"/> }
+            render={() => <Redirect to="/houses"/>}
           />
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
