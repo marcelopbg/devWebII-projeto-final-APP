@@ -5,8 +5,8 @@ import axios from 'axios';
 import HousesListFilter from './HousesListFilter'
 
 const dateFormat = (input) => {
-    const date = new Date(input);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    const date = input;
+    return `${date.getUTCDate()}/${date.getUTCMonth() + 1}/${date.getUTCFullYear()}`;
 }
 
 function HousesList() {
@@ -26,6 +26,30 @@ function HousesList() {
     const [dateFromFilter, setDateFromFilter] = useState(null);
     const [dateToFilter, setdateToFilter] = useState(null);
 
+
+    const judgeAvailability = (houses) => {
+        let isAvailable = true;
+        const today = new Date(new Date().setUTCHours(0, 0, 0));
+        const availableForRentEndDate = new Date(houses.availableForRentEndDate)
+        const availableForRentStartDate = new Date(houses.availableForRentStartDate)
+        if (houses.rents.length > 0) {
+            const rentStartDate = new Date(houses.rents[houses.rents.length -1].rentStartDate);
+            if (rentStartDate >= today) {
+                isAvailable = false
+            }
+        }
+        if (availableForRentEndDate <= today) {
+            isAvailable = false;
+        }
+
+        if (isAvailable) {
+            return `${dateFormat(availableForRentStartDate)} até ${dateFormat(availableForRentEndDate)}`
+        }
+        else {
+            return 'Não disponível'
+        }
+    }
+
     const moneyFormat = (doubleInput) => {
         return new Number(doubleInput).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     }
@@ -38,26 +62,26 @@ function HousesList() {
         if (stateFilter) {
             params.state = stateFilter
         }
-        if(districtFilter) {
+        if (districtFilter) {
             params.district = districtFilter;
         }
-        if(priceFromFilter && priceToFilter) {
-            params.price =  ['between', priceFromFilter, priceToFilter]
+        if (priceFromFilter && priceToFilter) {
+            params.price = ['between', priceFromFilter, priceToFilter]
         }
-        if(bathroomQuantityFilter) {
+        if (bathroomQuantityFilter) {
             params.bathroomQuantity = bathroomQuantityFilter;
         }
-        if(roomQuantityFilter) {
+        if (roomQuantityFilter) {
             params.roomQuantity = roomQuantityFilter;
         }
-        if(balconyQuantityFilter) {
+        if (balconyQuantityFilter) {
             params.balconyQuantity = balconyQuantityFilter;
         }
-        if(carSpotQuantityFilter) {
+        if (carSpotQuantityFilter) {
             params.carSpotQuantity = carSpotQuantityFilter;
         }
-        if(dateFromFilter && dateToFilter) {
-            params.date =  ['dateRangeBetween', dateFromFilter, dateToFilter]
+        if (dateFromFilter && dateToFilter) {
+            params.date = ['dateRangeBetween', dateFromFilter, dateToFilter]
         }
         axios(backendURL + "/api/house", { params: params, headers: authHeader() }).then(response => {
             setIsEmpty(false);
@@ -138,6 +162,7 @@ function HousesList() {
                                 <th scope="col">Qtd de Sacadas</th>
                                 <th scope="col">Qtd de Vagas</th>
                                 <th scope="col">Disponibilidade</th>
+                                <th scope="col">Ação</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -145,7 +170,7 @@ function HousesList() {
                                 return (
                                     <tr key={index}>
                                         <th scope="row">{index + 1}</th>
-                                        <td> <img style={{maxWidth: 100, aspectRatio: 16/9}} src={values.imageUrl}></img></td>
+                                        <td> <img style={{ maxWidth: 100 }} src={values.imageUrl}></img></td>
                                         <td>{values.description} </td>
                                         <td>{values.state} </td>
                                         <td>{values.city} </td>
@@ -157,7 +182,8 @@ function HousesList() {
                                         <td>{values.bathroomQuantity} </td>
                                         <td>{values.balconyQuantity} </td>
                                         <td>{values.carSpotQuantity} </td>
-                                        <td>{`${dateFormat(values.availableForRentStartDate)} até ${dateFormat(values.availableForRentEndDate)} `} </td>
+                                        <td>{judgeAvailability(values)} </td>
+                                        <td><a href={`createRent/${values.id}`}> Cadastrar Aluguel </a> </td>
                                     </tr>
                                 );
                             })}
