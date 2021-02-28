@@ -23,7 +23,7 @@ function CreateHouse(props) {
     null
   );
   const [availableForRentEndDate, SetAvailableForRentEndDate] = useState(null);
-
+  const [file, setFile] = useState(null);
   useEffect(() => {
     fetchStates().then((response) => {
       setStates(response.states);
@@ -48,27 +48,35 @@ function CreateHouse(props) {
 
   const handleClick = (event) => {
     event.preventDefault();
+    const formData = new FormData();
+    const obj = {
+      city,
+      state,
+      district,
+      address,
+      price,
+      owner,
+      description,
+      bathroomQuantity,
+      roomQuantity,
+      balconyQuantity,
+      carSpotQuantity,
+      availableForRentStartDate,
+      availableForRentEndDate,
+      file: file
+    };
+
+    for (var [key, value] of Object.entries(obj)) {
+      formData.append(key, value);
+    }
+    // formData.append('file', file)
+
     axios(backendURL + "/api/house", {
       method: "post",
-      data: {
-        city,
-        state,
-        district,
-        address,
-        price,
-        owner,
-        description,
-        bathroomQuantity,
-        roomQuantity,
-        balconyQuantity,
-        carSpotQuantity,
-        availableForRentStartDate,
-        availableForRentEndDate,
-      },
-      headers: authHeader(),
+      data: formData,
+      headers: authHeader(), "Content-Type": "multipart/form-data",
     }).then((response) => {
       if (response.data.length == 0) {
-        // setError('algo de errado no envio do formulário')
         console.log("algo de errado no envio do formulário");
       } else {
         props.history.push("/")
@@ -308,6 +316,20 @@ function CreateHouse(props) {
               required
             />
           </div>
+        </div>
+        <div className="row">
+          <div className="col-sm-4">
+        <label
+              htmlFor="colFormLabelSm"
+              className="ol-form-label col-form-label-sm"
+            >
+              <b> Selecione uma foto: </b>
+            </label>
+          <div className="custom-file">
+            <input accept="image/png, image/jpeg" type="file" className="custom-file-input" id="validatedCustomFile" onChange={(event) => { setFile(event.target.files[0]) }} required />
+            <label className="custom-file-label" for="validatedCustomFile">Choose file...</label>
+          </div>
+        </div>
         </div>
 
         <div className="d-flex container">

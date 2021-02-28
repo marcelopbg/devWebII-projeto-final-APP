@@ -125,6 +125,7 @@ function HousesList() {
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
+                                <th scope="col">Foto</th>
                                 <th scope="col">Descrição</th>
                                 <th scope="col">Estado</th>
                                 <th scope="col">Cidade</th>
@@ -144,6 +145,7 @@ function HousesList() {
                                 return (
                                     <tr key={index}>
                                         <th scope="row">{index + 1}</th>
+                                        <td> <img style={{maxWidth: 100, aspectRatio: 16/9}} src={values.imageUrl}></img></td>
                                         <td>{values.description} </td>
                                         <td>{values.state} </td>
                                         <td>{values.city} </td>
