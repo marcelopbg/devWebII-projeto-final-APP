@@ -50,11 +50,6 @@ const logout = () => {
                 Cadastrar Imóvel
             </Link>
             </li>
-            <li className="nav-item">
-              <Link to={"/createRent"} className="nav-link">
-                Cadastrar Aluguel
-            </Link>
-            </li>
             </React.Fragment>
           )}
         </div>
@@ -91,13 +86,13 @@ const logout = () => {
           <Route
             exact
             path="/"
-            render={() => (currentUser) ? <Redirect to="/houses"/> : <Redirect to="/login"/> }
+            render={() => <Redirect to="/houses"/>}
           />
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
           <Route path="/houses" component={HousesList} />
           <Route path="/createHouse" component={CreateHouse} />
-          <Route path="/createRent" component={CreateRent} />
+          <Route path="/createRent/:id" component={CreateRent} />
         </Switch>
       </div>
     </div>

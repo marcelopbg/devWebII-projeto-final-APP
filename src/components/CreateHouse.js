@@ -3,6 +3,7 @@ import { fetchStates } from "../services/location";
 import authHeader from "../services/auth.header";
 import backendURL from "../services/backend.url";
 import axios from "axios";
+import { redirectIfUnauthenticated } from "../services/auth.service";
 
 function CreateHouse(props) {
   const [states, setStates] = useState(undefined);
@@ -25,6 +26,7 @@ function CreateHouse(props) {
   const [availableForRentEndDate, SetAvailableForRentEndDate] = useState(null);
   const [file, setFile] = useState(null);
   useEffect(() => {
+    redirectIfUnauthenticated(props);
     fetchStates().then((response) => {
       setStates(response.states);
     });
@@ -69,7 +71,6 @@ function CreateHouse(props) {
     for (var [key, value] of Object.entries(obj)) {
       formData.append(key, value);
     }
-    // formData.append('file', file)
 
     axios(backendURL + "/api/house", {
       method: "post",
@@ -98,7 +99,7 @@ function CreateHouse(props) {
           onChange={handleStateChange}
           required
         >
-          <option selected disabled>
+          <option selected disabled value={null}>
             Selecione um Estado
           </option>
           {states &&
@@ -121,7 +122,7 @@ function CreateHouse(props) {
           onChange={handleCityChange}
           required
         >
-          <option selected disabled>
+          <option selected disabled value={null}>
             Selecione uma Cidade
           </option>
           {cities &&
@@ -326,8 +327,9 @@ function CreateHouse(props) {
               <b> Selecione uma foto: </b>
             </label>
           <div className="custom-file">
-            <input accept="image/png, image/jpeg" type="file" className="custom-file-input" id="validatedCustomFile" onChange={(event) => { setFile(event.target.files[0]) }} required />
+            <input accept="image/png, image/jpeg" type="file" className={(file != null) ? "custom-file-input  is-valid" : "custom-file-input" }  id="validatedCustomFile" onChange={(event) => { setFile(event.target.files[0]) }} required />
             <label className="custom-file-label" for="validatedCustomFile">Choose file...</label>
+            <div className="valid-feedback mt-2"><i className="fa fa-check"/> Upload Realizado com sucesso</div>
           </div>
         </div>
         </div>

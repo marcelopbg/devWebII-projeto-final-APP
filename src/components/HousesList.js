@@ -3,17 +3,12 @@ import authHeader from '../services/auth.header';
 import backendURL from '../services/backend.url';
 import axios from 'axios';
 import HousesListFilter from './HousesListFilter'
+import { redirectIfUnauthenticated } from "../services/auth.service";
 
-const dateFormat = (input) => {
-    const date = new Date(input);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-}
-
-function HousesList() {
+function HousesList(props) {
     const [content, setContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEmpty, setIsEmpty] = useState(false);
-
     const [stateFilter, setStateFilter] = useState(null);
     const [cityFilter, setCityFilter] = useState(null);
     const [districtFilter, setDistrictFilter] = useState(null);
@@ -25,6 +20,23 @@ function HousesList() {
     const [carSpotQuantityFilter, setCarSpotQuantityFilter] = useState(null);
     const [dateFromFilter, setDateFromFilter] = useState(null);
     const [dateToFilter, setdateToFilter] = useState(null);
+
+
+    const isHouseAvailable = (houses) => {
+        let isAvailable = true;
+        const today = new Date(new Date().toISOString().slice(0, 10));
+        const availableForRentEndDate = new Date(houses.availableForRentEndDate)
+        if (houses.rents.length > 0) {
+            const rentStartDate = new Date(houses.rents[houses.rents.length -1].rentStartDate);
+            if (rentStartDate <= today) {
+                isAvailable = false
+            }
+        }
+        if (availableForRentEndDate <= today) {
+            isAvailable = false;
+        }
+            return isAvailable; 
+    }
 
     const moneyFormat = (doubleInput) => {
         return new Number(doubleInput).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -38,26 +50,26 @@ function HousesList() {
         if (stateFilter) {
             params.state = stateFilter
         }
-        if(districtFilter) {
+        if (districtFilter) {
             params.district = districtFilter;
         }
-        if(priceFromFilter && priceToFilter) {
-            params.price =  ['between', priceFromFilter, priceToFilter]
+        if (priceFromFilter || priceToFilter) {
+            params.price = ['between', (priceFromFilter == '') ? 'null' : priceFromFilter, (priceToFilter == '') ? 'null' : priceToFilter]
         }
-        if(bathroomQuantityFilter) {
+        if (bathroomQuantityFilter) {
             params.bathroomQuantity = bathroomQuantityFilter;
         }
-        if(roomQuantityFilter) {
+        if (roomQuantityFilter) {
             params.roomQuantity = roomQuantityFilter;
         }
-        if(balconyQuantityFilter) {
+        if (balconyQuantityFilter) {
             params.balconyQuantity = balconyQuantityFilter;
         }
-        if(carSpotQuantityFilter) {
+        if (carSpotQuantityFilter) {
             params.carSpotQuantity = carSpotQuantityFilter;
         }
-        if(dateFromFilter && dateToFilter) {
-            params.date =  ['dateRangeBetween', dateFromFilter, dateToFilter]
+        if (dateFromFilter || dateToFilter) {
+            params.date = ['dateRangeBetween', dateFromFilter, dateToFilter]
         }
         axios(backendURL + "/api/house", { params: params, headers: authHeader() }).then(response => {
             setIsEmpty(false);
@@ -71,6 +83,7 @@ function HousesList() {
     }
 
     useEffect(() => {
+        redirectIfUnauthenticated(props);
         axios(backendURL + "/api/house", { headers: authHeader() }).then(response => {
             setIsEmpty(false);
             setContent(response.data);
@@ -138,6 +151,7 @@ function HousesList() {
                                 <th scope="col">Qtd de Sacadas</th>
                                 <th scope="col">Qtd de Vagas</th>
                                 <th scope="col">Disponibilidade</th>
+                                <th scope="col">Ação</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -145,7 +159,7 @@ function HousesList() {
                                 return (
                                     <tr key={index}>
                                         <th scope="row">{index + 1}</th>
-                                        <td> <img style={{maxWidth: 100, aspectRatio: 16/9}} src={values.imageUrl}></img></td>
+                                        <td> <img style={{ maxWidth: 100 }} src={values.imageUrl}></img></td>
                                         <td>{values.description} </td>
                                         <td>{values.state} </td>
                                         <td>{values.city} </td>
@@ -157,7 +171,16 @@ function HousesList() {
                                         <td>{values.bathroomQuantity} </td>
                                         <td>{values.balconyQuantity} </td>
                                         <td>{values.carSpotQuantity} </td>
-                                        <td>{`${dateFormat(values.availableForRentStartDate)} até ${dateFormat(values.availableForRentEndDate)} `} </td>
+                                        <td>
+                                            { isHouseAvailable(values) ?
+                                         `De ${new Date(values.availableForRentStartDate).toLocaleDateString('pt-BR')} até ${new Date(values.availableForRentEndDate).toLocaleDateString('pt-BR')}` 
+                                         : 'Não disponível' } </td>
+                                        <td>
+                                            { isHouseAvailable(values) ? 
+                                            <a href={`createRent/${values.id}`}> Cadastrar Aluguel </a> 
+                                            : 'Imóvel já está alugado' 
+                                            }
+                                            </td>
                                     </tr>
                                 );
                             })}

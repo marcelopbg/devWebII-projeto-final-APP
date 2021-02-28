@@ -32,10 +32,16 @@ const login = (username, password) => {
   const getCurrentUser = () => {
     return JSON.parse(localStorage.getItem('user'));;
   }
-  
+  const redirectIfUnauthenticated = (props) => {
+    const user = getCurrentUser();
+    if(!user)
+    props.history.push('/login');
+  }
+
   export {
       login,
       logout,
       register,
-      getCurrentUser
+      getCurrentUser,
+      redirectIfUnauthenticated
   };
